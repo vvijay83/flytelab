@@ -1,8 +1,13 @@
+import os
+if os.environ.get('https_proxy'):
+ del os.environ['https_proxy']
+if os.environ.get('http_proxy'):
+ del os.environ['http_proxy']
+
 import pip
 package_names=['flytekit', 'sklearn'] #packages to install
 pip.main(['install'] + package_names + ['--upgrade'])
 
-import os
 from argparse import ArgumentParser
 from pathlib import Path
 
