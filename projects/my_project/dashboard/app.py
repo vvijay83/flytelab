@@ -1,3 +1,4 @@
+import pip
 package_names=['flytekit'] #packages to install
 pip.main(['install'] + package_names + ['--upgrade'])
 
