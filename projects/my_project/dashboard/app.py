@@ -1,5 +1,5 @@
 import pip
-package_names=['flytekit'] #packages to install
+package_names=['flytekit', 'sklearn'] #packages to install
 pip.main(['install'] + package_names + ['--upgrade'])
 
 import os
