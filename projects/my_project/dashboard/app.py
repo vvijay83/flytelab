@@ -3,10 +3,13 @@ if os.environ.get('https_proxy'):
  del os.environ['https_proxy']
 if os.environ.get('http_proxy'):
  del os.environ['http_proxy']
-
+ 
 import pip
-package_names=['flytekit', 'sklearn'] #packages to install
+package_names=['flytekit', 'sklearn', 'grpc'] #packages to install
 pip.main(['install'] + package_names + ['--upgrade'])
+
+import grpc
+channel = grpc.insecure_channel('localhost:8501', options=(('grpc.enable_http_proxy', 0),))
 
 from argparse import ArgumentParser
 from pathlib import Path
