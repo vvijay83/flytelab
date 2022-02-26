@@ -1,4 +1,6 @@
-pip install flytekit
+package_names=['flytekit'] #packages to install
+pip.main(['install'] + package_names + ['--upgrade'])
+
 import os
 from argparse import ArgumentParser
 from pathlib import Path
