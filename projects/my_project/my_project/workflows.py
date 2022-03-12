@@ -24,8 +24,9 @@ def get_dataset() -> pd.DataFrame:
     download = requests.get(url).content
     df = pd.read_csv(io.StringIO(download.decode('utf-8')),sep=',')
     print("df is created",df.columns)
-    df.dropna(inplace=True)
-    df = df.reset_index()
+    #df.dropna(inplace=True)
+    #df = df.reset_index()
+    print(df.columns)
     return(df)
 
 
@@ -83,6 +84,7 @@ def train_model(train: pd.DataFrame) -> AdaBoostClassifier:
     X_train, X_test, y_train, y_test = train_test_split(X, y)
     X_train = np.nan_to_num(X_train)
     y_train=np.nan_to_num(y_train)
+    print("X_train dimensiona",X_train)
     return model.fit(X_train, y_train)
 
 
