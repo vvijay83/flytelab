@@ -1,3 +1,4 @@
+from copyreg import pickle
 import pandas as pd
 from sklearn.datasets import load_digits
 from sklearn.linear_model import LogisticRegression
@@ -14,7 +15,11 @@ imputer_cat = SimpleImputer(strategy="most_frequent")
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import roc_auc_score
 from flytekit import task, workflow
-
+from joblib import dump
+from sklearn.preprocessing import OneHotEncoder
+from typing import Tuple
+import pickle
+hi=None
 
 @task
 def get_dataset() -> pd.DataFrame:
@@ -30,9 +35,10 @@ def get_dataset() -> pd.DataFrame:
     return(df)
 
 
+    
 
 @task
-def train_model(train: pd.DataFrame) -> AdaBoostClassifier:
+def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder]:
     num_cols = ['age', 'education-num', 'capital-gain',
             'capital-loos', 'hour-per-week']
     cat_cols = ['workclass', 
@@ -53,6 +59,14 @@ def train_model(train: pd.DataFrame) -> AdaBoostClassifier:
         print(X.shape)
         return(imputer_cat.fit_transform(X))
         #return X.apply(lambda col: imputer_cat.fit_transform(col))  
+    def one_hot_encode(X):
+        print("one hot encode")
+        ohe = OneHotEncoder(handle_unknown = 'ignore')
+        ohe.fit(pd.DataFrame(X))
+        global hi
+        hi=ohe
+        dump(ohe, 'onehot.joblib') 
+        return ohe.transform(pd.DataFrame(X)).toarray()
 
     log_transform_pipeline = Pipeline([
     ('get_log_transform_cols', FunctionTransformer(get_log_transform_cols, validate=False)),
@@ -69,7 +83,8 @@ def train_model(train: pd.DataFrame) -> AdaBoostClassifier:
     cat_cols_pipeline = Pipeline([
     ('get_cat_cols', FunctionTransformer(get_cat_cols, validate=False)),
     ('imputer', SimpleImputer(strategy="most_frequent")),
-    ('get_dummies', FunctionTransformer(get_dummies, validate=False))
+#    ('get_dummies', FunctionTransformer(get_dummies, validate=False))
+    ('one_hot_encode', FunctionTransformer(one_hot_encode, validate=False))
     ])       
 
     steps_ = FeatureUnion([
@@ -85,11 +100,11 @@ def train_model(train: pd.DataFrame) -> AdaBoostClassifier:
     X_train = np.nan_to_num(X_train)
     y_train=np.nan_to_num(y_train)
     print("X_train dimensiona",X_train)
-    return model.fit(X_train, y_train)
+    return model.fit(X_train, y_train),hi
 
 
 @workflow
-def main() -> AdaBoostClassifier:
+def main() -> tuple[AdaBoostClassifier,OneHotEncoder]:
     return train_model(train=get_dataset())
 
 

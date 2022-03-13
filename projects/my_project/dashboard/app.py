@@ -43,6 +43,7 @@ import pandas as pd
 from flytekit.remote import FlyteRemote
 from flytekit.models import filters
 from flytekit.models.admin.common import Sort
+from joblib import load
 
 #from sklearn.datasets import load_digits
 
@@ -80,6 +81,8 @@ wf_execution = remote.fetch_workflow_execution(name=latest_execution.id.name)
 remote.sync(wf_execution, sync_nodes=False)
 model = wf_execution.outputs["o0"]
 print(model)
+encoder = wf_execution.outputs["o1"]
+print("\n one encoder \n",encoder)
 
 
 ############
@@ -140,6 +143,11 @@ def cat_imputer(X):
     print(X.shape)
     return(imputer_cat.fit_transform(X))
     #return X.apply(lambda col: imputer_cat.fit_transform(col))  
+def one_hot_encode(X):
+    print(X.shape)
+    print("current wd",os.getcwd())
+    ohe = load('onehot.joblib')
+    return ohe.transform(pd.DataFrame(X)).toarray()
 
 log_transform_pipeline = Pipeline([
 ('get_log_transform_cols', FunctionTransformer(get_log_transform_cols, validate=False)),
@@ -156,7 +164,8 @@ num_cols_pipeline = Pipeline([
 cat_cols_pipeline = Pipeline([
 ('get_cat_cols', FunctionTransformer(get_cat_cols, validate=False)),
 ('imputer', SimpleImputer(strategy="most_frequent")),
-('get_dummies', FunctionTransformer(get_dummies, validate=False))
+#('get_dummies', FunctionTransformer(get_dummies, validate=False))
+('one_hot_encode', FunctionTransformer(one_hot_encode, validate=False))
 ])       
 
 steps_ = FeatureUnion([
