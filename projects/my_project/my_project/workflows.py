@@ -25,7 +25,7 @@ hi=None
 def get_dataset() -> pd.DataFrame:
     #return load_digits(as_frame=True).frame
    
-    url = "https://github.com/smadarab/flytelab/raw/main/census.csv" # Make sure the url is the raw version of the file on GitHub
+    url="https://github.com/smadarab/flytelab/raw/main/census 2.csv"
     download = requests.get(url).content
     df = pd.read_csv(io.StringIO(download.decode('utf-8')),sep=',')
     print("df is created",df.columns)
