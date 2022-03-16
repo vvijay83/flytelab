@@ -25,6 +25,7 @@ hi=None
 def get_dataset() -> pd.DataFrame:
     #return load_digits(as_frame=True).frame
    
+    #url = "https://github.com/smadarab/flytelab/raw/main/census.csv" # Make sure the url is the raw version of the file on GitHub
     url="https://github.com/smadarab/flytelab/raw/main/census 2.csv"
     download = requests.get(url).content
     df = pd.read_csv(io.StringIO(download.decode('utf-8')),sep=',')
@@ -40,12 +41,12 @@ def get_dataset() -> pd.DataFrame:
 @task
 def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder]:
     num_cols = ['age', 'education-num', 'capital-gain',
-            'capital-loos', 'hour-per-week']
+            'capital-loss', 'hours-per-week']
     cat_cols = ['workclass', 
             'marital-status', 'occupation', 
             'relationship', 'race', 
             'sex', 'native-country']
-    log_transform_cols = ['capital-loos', 'capital-gain']    
+    log_transform_cols = ['capital-loss', 'capital-gain']    
     def get_cat_cols(X):
         return X[cat_cols]
     def get_num_cols(X):
@@ -63,8 +64,8 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder]:
         print("one hot encode")
         ohe = OneHotEncoder(handle_unknown = 'ignore')
         ohe.fit(pd.DataFrame(X))
-        #global hi
-        #hi=ohe
+        global hi
+        hi=ohe
         #dump(ohe, 'onehot.joblib') 
         return ohe.transform(pd.DataFrame(X)).toarray()
 
@@ -93,18 +94,15 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder]:
     ('cat_cols', cat_cols_pipeline)
 ])
     full_pipeline = Pipeline([('steps_', steps_)])
-    y = train['income'].map({' <=50K': 0, ' >50K': 1})
+    y = train['income'].map({'<=50K': 0, '>50K': 1})
     X = full_pipeline.fit_transform(train)
     model = AdaBoostClassifier(n_estimators=300)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
-    X_train = np.nan_to_num(X_train)
-    y_train=np.nan_to_num(y_train)
-    print("X_train dimensiona",X_train)
     return model.fit(X_train, y_train),hi
 
 
 @workflow
-def main() -> tuple[AdaBoostClassifier,OneHotEncoder]:
+def main() -> Tuple[AdaBoostClassifier,OneHotEncoder]:
     return train_model(train=get_dataset())
 
 
