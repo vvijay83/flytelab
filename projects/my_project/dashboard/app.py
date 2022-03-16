@@ -47,10 +47,8 @@ from joblib import load
 
 #from sklearn.datasets import load_digits
 
-
 PROJECT_NAME = "flytelab-my_project".replace("_", "-")
 WORKFLOW_NAME = "my_project.workflows.main"
-
 
 parser = ArgumentParser()
 parser.add_argument("--remote", action="store_true")
@@ -102,18 +100,20 @@ st.write("# Flytelab: my_project")
 st.write("### Demo project")
 st.write(f"Model: `{model}`")
 
-age = st.text_input("age", 50)
-education_num = st.text_input("education-num", 13.0)
-capital_gain = st.text_input("capital-gain", 0.0)
-capital_loos = st.text_input("capital-loos", 0.0)
-hour_per_week = st.text_input("hour-per-week", 13.0)
-workclass = st.text_input("workclass", "Self-emp-not-inc")
-marital_status = st.text_input("marital-status", "Married-civ-spouse")
-occupation = st.text_input("occupation", "Exec-managerial")
-relationship = st.text_input("relationship", "Husband")
-race = st.text_input("race", "White")
-sex = st.text_input("sex", "Male")
-native_country = st.text_input("native-country", "United-States")
+with st.form(key='my_form'):
+    age = st.number_input("age", 50)
+    education_num = st.number_input("education-num", 13.0)
+    capital_gain = st.number_input("capital-gain", 0.0)
+    capital_loos = st.number_input("capital-loos", 0.0)
+    hour_per_week = st.number_input("hour-per-week", 13.0)
+    workclass = st.text_input("workclass", "Self-emp-not-inc")
+    marital_status = st.text_input("marital-status", "Married-civ-spouse")
+    occupation = st.text_input("occupation", "Exec-managerial")
+    relationship = st.text_input("relationship", "Husband")
+    race = st.text_input("race", "White")
+    sex = st.text_input("sex", "Male")
+    native_country = st.text_input("native-country", "United-States")
+    submit_button = st.form_submit_button(label='Submit')
 
 #st.write("Use the slider below to select a sample for prediction")
 
@@ -129,6 +129,7 @@ cat_cols = ['workclass',
             'relationship', 'race', 
             'sex', 'native_country']
 log_transform_cols = ['capital_loos', 'capital-gain']    
+
 def get_cat_cols(X):
     return X[cat_cols]
 def get_num_cols(X):
@@ -146,8 +147,8 @@ def cat_imputer(X):
 def one_hot_encode(X):
     print(X.shape)
     print("current wd",os.getcwd())
-    ohe = load('onehot.joblib')
-    return ohe.transform(pd.DataFrame(X)).toarray()
+    #ohe = load('onehot.joblib')
+    return encoder.transform(pd.DataFrame(X)).toarray()
 
 log_transform_pipeline = Pipeline([
 ('get_log_transform_cols', FunctionTransformer(get_log_transform_cols, validate=False)),
@@ -180,4 +181,7 @@ X_train = full_pipeline.fit_transform(X_train)
 #X_train=np.array(X_train)
 #st.image(data.images[sample_index], clamp=True, width=300)
 #st.write(f"Ground Truth: {data.target[sample_index]}")
-st.write(f"Prediction: {model.predict(X_train)}")
+#st.write(f"Prediction: {model.predict_proba(X_train)}")
+y_pred=model.predict_proba(X_train)[:, 1]
+final = y_pred[0]
+st.write(f"Prediction: {final}")
