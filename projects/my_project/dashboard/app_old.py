@@ -14,28 +14,6 @@ imputer_cat = SimpleImputer(strategy="most_frequent")
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import roc_auc_score
 from flytekit import task, workflow
-from copyreg import pickle
-import pandas as pd
-from sklearn.datasets import load_digits
-from sklearn.linear_model import LogisticRegression
-import requests
-import io
-import numpy as np
-from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.preprocessing import FunctionTransformer, MinMaxScaler
-from sklearn.impute import SimpleImputer
-imputer_num = SimpleImputer(missing_values=np.nan, strategy='mean')
-from sklearn.model_selection import train_test_split
-from sklearn.impute import SimpleImputer
-imputer_cat = SimpleImputer(strategy="most_frequent")
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.metrics import roc_auc_score
-from flytekit import task, workflow
-from joblib import dump
-from sklearn.preprocessing import OneHotEncoder
-from typing import Tuple
-import pickle
-from sklearn.preprocessing import MinMaxScaler
 
 
 
@@ -69,10 +47,8 @@ from joblib import load
 
 #from sklearn.datasets import load_digits
 
-
 PROJECT_NAME = "flytelab-my_project".replace("_", "-")
 WORKFLOW_NAME = "my_project.workflows.main"
-
 
 parser = ArgumentParser()
 parser.add_argument("--remote", action="store_true")
@@ -105,15 +81,20 @@ model = wf_execution.outputs["o0"]
 print(model)
 encoder = wf_execution.outputs["o1"]
 print("\n one encoder \n",encoder)
-scaler = wf_execution.outputs["o2"]
-print("\n one encoder \n",encoder)
+
 
 ############
 # App Code #
 ############
 
 #data = load_digits(as_frame=True)
-
+url="https://github.com/smadarab/flytelab/raw/main/census 2.csv"
+download = requests.get(url).content
+df = pd.read_csv(io.StringIO(download.decode('utf-8')),sep=',')
+print("df is created",df.columns)
+df.dropna(inplace=True)
+df = df.reset_index()
+data=df
 
 st.write("# Flytelab: my_project")
 st.write("### Demo project")
@@ -135,38 +116,26 @@ with st.form(key='my_form'):
     submit_button = st.form_submit_button(label='Submit')
 
 #st.write("Use the slider below to select a sample for prediction")
-'''
-dict_val = {'age': int(age),
- 'workclass': workclass,
- 'education_level': education_level,
- 'education-num':float(education_num),
- 'marital-status': marital_status,
- 'occupation': occupation,
- 'relationship': relationship,
- 'race': race,
- 'sex': sex,
- 'capital-gain':float(capital_gain),
- 'capital-loss': float(capital_loos),
- 'hours-per-week': float(hour_per_week),
- 'native-country': native_country
- }'''
-       
-X_train = pd.DataFrame({'age': age, 'education-num': education_num,'capital-gain':capital_gain,'capital-loss':capital_loos,'hours-per-week':hour_per_week,'workclass':workclass,'marital-status':marital_status,'occupation':occupation,'relationship':relationship,'race':race,'sex':sex,'native-country':native_country},index=[0])
 
+X_train = [age, education_num, capital_gain, capital_loos, hour_per_week, workclass,
+            marital_status, occupation, relationship, race, sex, native_country]
 
-#X_train = pd.DataFrame(dict_val,index=[0])
-num_cols = ['age', 'education-num', 'capital-gain',
-        'capital-loss', 'hours-per-week']
+X_train = pd.DataFrame({'age': age, 'education_num': education_num,'capital-gain':capital_gain,'capital_loos':capital_loos,'hour_per_week':hour_per_week,'workclass':workclass,'martial_status':marital_status,'occupation':occupation,'relationship':relationship,'race':race,'sex':sex,'native_country':native_country},index=[0])
+
+num_cols = ['age', 'education_num', 'capital-gain',
+            'capital_loos', 'hour_per_week']
 cat_cols = ['workclass', 
-        'marital-status', 'occupation', 
-        'relationship', 'race', 
-        'sex', 'native-country']
-log_transform_cols = ['capital-loss', 'capital-gain']    
+            'martial_status', 'occupation', 
+            'relationship', 'race', 
+            'sex', 'native_country']
+log_transform_cols = ['capital_loos', 'capital-gain']    
+
 def get_cat_cols(X):
     return X[cat_cols]
 def get_num_cols(X):
     return X[num_cols]
 def get_log_transform_cols(X):
+    print("in function",X.columns)
     return X[log_transform_cols]
 def get_dummies(X):
     print('\n \n',type(X))
@@ -176,12 +145,10 @@ def cat_imputer(X):
     return(imputer_cat.fit_transform(X))
     #return X.apply(lambda col: imputer_cat.fit_transform(col))  
 def one_hot_encode(X):
-    print("one hot encode")
-    #dump(ohe, 'onehot.joblib') 
-    print(X)
+    print(X.shape)
+    print("current wd",os.getcwd())
+    #ohe = load('onehot.joblib')
     return encoder.transform(pd.DataFrame(X)).toarray()
-def min_max_scaling(X):
-    return scaler.transform(pd.DataFrame(X)).tolist()
 
 log_transform_pipeline = Pipeline([
 ('get_log_transform_cols', FunctionTransformer(get_log_transform_cols, validate=False)),
@@ -192,13 +159,13 @@ log_transform_pipeline = Pipeline([
 num_cols_pipeline = Pipeline([
 ('get_num_cols', FunctionTransformer(get_num_cols, validate=False)),
 ('imputer', SimpleImputer(strategy='mean')),
-('min_max_scaler', FunctionTransformer(min_max_scaling, validate=False))
+('min_max_scaler', MinMaxScaler())
 ])
 
 cat_cols_pipeline = Pipeline([
 ('get_cat_cols', FunctionTransformer(get_cat_cols, validate=False)),
 ('imputer', SimpleImputer(strategy="most_frequent")),
-#    ('get_dummies', FunctionTransformer(get_dummies, validate=False))
+#('get_dummies', FunctionTransformer(get_dummies, validate=False))
 ('one_hot_encode', FunctionTransformer(one_hot_encode, validate=False))
 ])       
 
@@ -207,14 +174,18 @@ steps_ = FeatureUnion([
 ('num_cols', num_cols_pipeline),
 ('cat_cols', cat_cols_pipeline)
 ])
+
+st.write(f"Output: {X_train.values}")
+
 full_pipeline = Pipeline([('steps_', steps_)])
-X = full_pipeline.fit_transform(train)
-   
-y_pred=model.predict_proba(X)
-final = y_pred
-st.write(f"Prediction: {X}")
+X_train = full_pipeline.fit_transform(X_train)
 
 #X_train=np.array(X_train)
 #st.image(data.images[sample_index], clamp=True, width=300)
 #st.write(f"Ground Truth: {data.target[sample_index]}")
+#st.write(f"Prediction: {model.predict_proba(X_train)}")
+y_pred=model.predict_proba(X_train)
+st.write(f"Output: {y_pred}")
+final = np.argmax(y_pred)
 st.write(f"Prediction: {final}")
+st.write(f"Output: {X_train}")

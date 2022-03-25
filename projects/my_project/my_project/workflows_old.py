@@ -20,9 +20,6 @@ from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
 import pickle
 hi=None
-scale=None
-from sklearn.preprocessing import MinMaxScaler
-
 
 @task
 def get_dataset() -> pd.DataFrame:
@@ -42,7 +39,7 @@ def get_dataset() -> pd.DataFrame:
     
 
 @task
-def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
+def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder]:
     num_cols = ['age', 'education-num', 'capital-gain',
             'capital-loss', 'hours-per-week']
     cat_cols = ['workclass', 
@@ -66,18 +63,12 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
     def one_hot_encode(X):
         print("one hot encode")
         ohe = OneHotEncoder(handle_unknown = 'ignore')
-        #print("DF:: ")
         ohe.fit(pd.DataFrame(X))
         global hi
         hi=ohe
         #dump(ohe, 'onehot.joblib') 
         return ohe.transform(pd.DataFrame(X)).toarray()
-    def min_max_scaling(X):
-        scaler = MinMaxScaler()
-        scaler.fit(X)
-        global scale
-        scale=scaler
-        return scaler.transform(pd.DataFrame(X)).tolist()
+
     log_transform_pipeline = Pipeline([
     ('get_log_transform_cols', FunctionTransformer(get_log_transform_cols, validate=False)),
     ('imputer', SimpleImputer(strategy='mean')),   
@@ -87,13 +78,13 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
     num_cols_pipeline = Pipeline([
     ('get_num_cols', FunctionTransformer(get_num_cols, validate=False)),
     ('imputer', SimpleImputer(strategy='mean')),
-    ('min_max_scaler', FunctionTransformer(min_max_scaling, validate=False))
+    ('min_max_scaler', MinMaxScaler())
     ])
 
     cat_cols_pipeline = Pipeline([
     ('get_cat_cols', FunctionTransformer(get_cat_cols, validate=False)),
     ('imputer', SimpleImputer(strategy="most_frequent")),
-    #    ('get_dummies', FunctionTransformer(get_dummies, validate=False))
+#    ('get_dummies', FunctionTransformer(get_dummies, validate=False))
     ('one_hot_encode', FunctionTransformer(one_hot_encode, validate=False))
     ])       
 
@@ -101,18 +92,16 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
     ('log_transform', log_transform_pipeline),
     ('num_cols', num_cols_pipeline),
     ('cat_cols', cat_cols_pipeline)
-    ])
+])
     full_pipeline = Pipeline([('steps_', steps_)])
     y = train['income'].map({'<=50K': 0, '>50K': 1})
     X = full_pipeline.fit_transform(train)
     model = AdaBoostClassifier(n_estimators=300)
-    X_train, X_test, y_train, y_test = train_test_split(X, y,shuffle=False)
-    model = model.fit(X_train, y_train) 
-    return model,hi,scale
-
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
+    return model.fit(X_train, y_train),hi
 
 @workflow
-def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
+def main() -> Tuple[AdaBoostClassifier,OneHotEncoder]:
     return train_model(train=get_dataset())
 
 
