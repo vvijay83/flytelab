@@ -18,6 +18,7 @@ from flytekit import task, workflow
 from joblib import dump
 from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
+from pandas_profiling import ProfileReport
 import pickle
 hi=None
 scale=None
@@ -38,8 +39,19 @@ def get_dataset() -> pd.DataFrame:
     print(df.columns)
     return(df)
 
+@task
+def plot_dataset(df) -> ProfileReport:
+    profile = ProfileReport(df)
+    print(profile)
 
-    
+@task
+def clean_dataset() -> pd.DataFrame:
+
+@task
+def transform_cat() -> pd.DataFrame:
+
+@task
+def transform_num() -> pd.DataFrame:
 
 @task
 def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
@@ -110,11 +122,24 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
     model = model.fit(X_train, y_train) 
     return model,hi,scale
 
+@task
+def test_model() -> pd.DataFrame:
+
+@workflow1
+def main() -> pd.DataFrame:
+    return get_dataset()
+
+@workflow2
+def main() -> ProfileReport:
+    return plot_dataset(df)
 
 @workflow
 def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
     return train_model(train=get_dataset())
 
+@workflow
+def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
+    return train_model(train=get_dataset())
 
 if __name__ == "__main__":
     print(f"trained model: {main()}")
