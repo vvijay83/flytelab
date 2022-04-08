@@ -40,7 +40,7 @@ def get_dataset() -> pd.DataFrame:
     return(df)
 
 @task
-def plot_dataset(df) -> ProfileReport:
+def plot_dataset(df:pd.DataFrame) -> ProfileReport:
     profile = ProfileReport(df)
     print(profile)
 
@@ -130,12 +130,12 @@ def test_model() -> pd.DataFrame:
     pass
 
 @workflow
-def main() -> pd.DataFrame:
+def main1() -> pd.DataFrame:
     return get_dataset()
 
 @workflow
 def main() -> ProfileReport:
-    return plot_dataset(df)
+    return plot_dataset(df=get_dataset())
 
 @workflow
 def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
