@@ -24,6 +24,9 @@ hi=None
 scale=None
 from sklearn.preprocessing import MinMaxScaler
 
+import pip
+package_names=['pandas_profiling'] #packages to install
+pip.main(['install'] + package_names + ['--upgrade'])
 
 @task
 def get_dataset() -> pd.DataFrame:
