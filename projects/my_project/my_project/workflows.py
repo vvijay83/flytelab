@@ -140,13 +140,10 @@ def main1() -> pd.DataFrame:
 def main() -> ProfileReport:
     return plot_dataset(df=get_dataset())
 
-@workflow
-def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
-    return train_model(train=get_dataset())
+#@workflow
+#def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
+#    return train_model(train=get_dataset())
 
-@workflow
-def main() -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
-    return train_model(train=get_dataset())
 
 if __name__ == "__main__":
     print(f"trained model: {main()}")
