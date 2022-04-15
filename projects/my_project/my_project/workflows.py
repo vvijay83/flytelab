@@ -47,17 +47,17 @@ def plot_dataset(df:pd.DataFrame) -> ProfileReport:
     profile = ProfileReport(df)
     return profile
 
-@task
-def clean_dataset() -> pd.DataFrame:
-    pass
+#@task
+#def clean_dataset() -> pd.DataFrame:
+#    pass
 
-@task
-def transform_cat() -> pd.DataFrame:
-    pass
+#@task
+#def transform_cat() -> pd.DataFrame:
+#    pass
 
-@task
-def transform_num() -> pd.DataFrame:
-    pass
+#@task
+#def transform_num() -> pd.DataFrame:
+#    pass
 
 @task
 def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,MinMaxScaler]:
@@ -128,9 +128,9 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
     model = model.fit(X_train, y_train) 
     return model,hi,scale
 
-@task
-def test_model() -> pd.DataFrame:
-    pass
+#@task
+#def test_model() -> pd.DataFrame:
+#    pass
 
 #@workflow
 #def main1() -> pd.DataFrame:
