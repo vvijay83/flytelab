@@ -132,9 +132,9 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
 def test_model() -> pd.DataFrame:
     pass
 
-@workflow
-def main1() -> pd.DataFrame:
-    return get_dataset()
+#@workflow
+#def main1() -> pd.DataFrame:
+#    return get_dataset()
 
 @workflow
 def main() -> ProfileReport:
