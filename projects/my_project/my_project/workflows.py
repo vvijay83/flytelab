@@ -45,7 +45,7 @@ def get_dataset() -> pd.DataFrame:
 @task
 def plot_dataset(df:pd.DataFrame) -> ProfileReport:
     profile = ProfileReport(df)
-    print(profile)
+    return profile
 
 @task
 def clean_dataset() -> pd.DataFrame:
