@@ -18,17 +18,12 @@ from flytekit import task, workflow
 from joblib import dump
 from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
+from matplotlib import pyplot
 
 import pickle
 hi=None
 scale=None
 from sklearn.preprocessing import MinMaxScaler
-
-import pip
-package_names=['pandas_profiling'] #packages to install
-pip.main(['install'] + package_names + ['--upgrade'])
-
-from pandas_profiling import ProfileReport
 
 @task
 def get_dataset() -> pd.DataFrame:
@@ -45,9 +40,15 @@ def get_dataset() -> pd.DataFrame:
     return(df)
 
 @task
-def plot_dataset(df:pd.DataFrame) -> ProfileReport:
-    profile = ProfileReport(df)
-    return profile
+def plot_dataset(df:pd.DataFrame) -> pyplot:
+    x = df['age'].value_counts().index
+    y = df['age'].value_counts().values
+    fig = pyplot.figure(figsize =(10, 7))
+    # Horizontal Bar Plot
+    chart = pyplot.bar(x,y)
+    # Show Plot
+    pyplot.show()
+    return(chart)
 
 #@task
 #def clean_dataset() -> pd.DataFrame:
@@ -139,7 +140,7 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
 #    return get_dataset()
 
 @workflow
-def main() -> ProfileReport:
+def main() -> pyplot:
     return plot_dataset(df=get_dataset())
 
 #@workflow
