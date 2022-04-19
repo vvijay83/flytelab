@@ -18,7 +18,7 @@ from flytekit import task, workflow
 from joblib import dump
 from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
-from pandas_profiling import ProfileReport
+
 import pickle
 hi=None
 scale=None
@@ -27,6 +27,8 @@ from sklearn.preprocessing import MinMaxScaler
 import pip
 package_names=['pandas_profiling'] #packages to install
 pip.main(['install'] + package_names + ['--upgrade'])
+
+from pandas_profiling import ProfileReport
 
 @task
 def get_dataset() -> pd.DataFrame:
