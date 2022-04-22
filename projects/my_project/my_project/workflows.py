@@ -48,7 +48,7 @@ def plot_dataset(df:pd.DataFrame) -> pyplot:
     chart = pyplot.bar(x,y)
     # Show Plot
     pyplot.show()
-    return chart
+    #return chart
 
 #@task
 #def clean_dataset() -> pd.DataFrame:
