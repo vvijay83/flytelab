@@ -18,7 +18,7 @@ from flytekit import task, workflow
 from joblib import dump
 from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
-import matplotlib
+import matplotlib.pyplot
 
 import pickle
 hi=None
