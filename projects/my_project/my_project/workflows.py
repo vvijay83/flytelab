@@ -45,11 +45,11 @@ def plot_dataset(df:pd.DataFrame) -> matplotlib.pyplot:
     y = df['age'].value_counts().values
     fig = matplotlib.pyplot.figure(figsize =(10, 7))
     # Horizontal Bar Plot
-    chart = matplotlib.pyplot.bar(x,y)
+    matplotlib.pyplot.bar(x,y)
     # Show Plot
     matplotlib.pyplot.show()
-    print (type(chart))
-    return chart
+    #print (list(chart))
+    return fig
 
 #@task
 #def clean_dataset() -> pd.DataFrame:
