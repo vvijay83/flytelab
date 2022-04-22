@@ -18,7 +18,7 @@ from flytekit import task, workflow
 from joblib import dump
 from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
-from matplotlib import pyplot
+import matplotlib
 
 import pickle
 hi=None
@@ -43,11 +43,11 @@ def get_dataset() -> pd.DataFrame:
 def plot_dataset(df:pd.DataFrame) -> matplotlib.pyplot:
     x = df['age'].value_counts().index
     y = df['age'].value_counts().values
-    fig = pyplot.figure(figsize =(10, 7))
+    fig = matplotlib.pyplot.figure(figsize =(10, 7))
     # Horizontal Bar Plot
-    chart = pyplot.bar(x,y)
+    chart = matplotlib.pyplot.bar(x,y)
     # Show Plot
-    pyplot.show()
+    matplotlib.pyplot.show()
     print (type(chart))
     return chart
 
