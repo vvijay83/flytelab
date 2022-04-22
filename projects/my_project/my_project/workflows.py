@@ -18,12 +18,16 @@ from flytekit import task, workflow
 from joblib import dump
 from sklearn.preprocessing import OneHotEncoder
 from typing import Tuple
-import matplotlib.pyplot
 
 import pickle
 hi=None
 scale=None
 from sklearn.preprocessing import MinMaxScaler
+
+import pip
+package_names=['matplotlib'] #packages to install
+pip.main(['install'] + package_names + ['--upgrade'])
+import matplotlib.pyplot
 
 @task
 def get_dataset() -> pd.DataFrame:
