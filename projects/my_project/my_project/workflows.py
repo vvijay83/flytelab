@@ -40,7 +40,7 @@ def get_dataset() -> pd.DataFrame:
     return(df)
 
 @task
-def plot_dataset(df:pd.DataFrame) -> pyplot:
+def plot_dataset(df:pd.DataFrame) -> matplotlib.pyplot:
     x = df['age'].value_counts().index
     y = df['age'].value_counts().values
     fig = pyplot.figure(figsize =(10, 7))
@@ -48,7 +48,8 @@ def plot_dataset(df:pd.DataFrame) -> pyplot:
     chart = pyplot.bar(x,y)
     # Show Plot
     pyplot.show()
-    #return chart
+    print (type(chart))
+    return chart
 
 #@task
 #def clean_dataset() -> pd.DataFrame:
@@ -140,7 +141,7 @@ def train_model(train: pd.DataFrame) -> Tuple[AdaBoostClassifier,OneHotEncoder,M
 #    return get_dataset()
 
 @workflow
-def main() -> pyplot:
+def main() -> matplotlib.pyplot:
     return plot_dataset(df=get_dataset())
 
 #@workflow
